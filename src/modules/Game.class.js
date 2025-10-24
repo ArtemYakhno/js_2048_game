@@ -20,9 +20,21 @@ class Game {
    * If passed, the board will be initialized with the provided
    * initial state.
    */
+
+  #initialBoard = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+  ];
+  #size = 4;
+
   constructor(initialState) {
-    // eslint-disable-next-line no-console
-    console.log(initialState);
+    if (initialState) {
+      this.#initialBoard = structuredClone(initialState);
+    }
+    this.board = structuredClone(this.#initialBoard);
+    this.score = 0;
   }
 
   moveLeft() {}
@@ -33,12 +45,16 @@ class Game {
   /**
    * @returns {number}
    */
-  getScore() {}
+  getScore() {
+    return this.score;
+  }
 
   /**
    * @returns {number[][]}
    */
-  getState() {}
+  getState() {
+    return this.board;
+  }
 
   /**
    * Returns the current game status.
@@ -50,19 +66,97 @@ class Game {
    * `win` - the game is won;
    * `lose` - the game is lost
    */
-  getStatus() {}
+  getStatus() {
+    if (this.#checkInitial()) {
+      return 'idle';
+    }
+
+    return 'playing';
+  }
 
   /**
    * Starts the game.
    */
-  start() {}
+  start() {
+    this.#initGame();
+  }
 
   /**
    * Resets the game.
    */
-  restart() {}
+  restart() {
+    this.board = structuredClone(this.#initialBoard);
+    this.score = 0;
+    this.#initGame();
+  }
 
-  // Add your own methods here
+  #checkInitial() {
+    return JSON.stringify(this.board) === JSON.stringify(this.#initialBoard);
+  }
+
+  #initGame() {
+    this.#pushNumber();
+    this.#pushNumber();
+  }
+
+  #pushNumber() {
+    const indexRow = this.#generateRandomIndex(
+      0,
+      this.#size,
+      this.#findEmptyRows(),
+    );
+    const indexCell = this.#generateRandomIndex(
+      0,
+      this.#size,
+      this.#findEmptyCells(indexRow),
+    );
+    const value = this.#generateRandomNumber();
+
+    this.board[indexRow][indexCell] = value;
+  }
+
+  #generateRandomIndex(min, max, excluded = []) {
+    let num;
+
+    do {
+      num = Math.floor(Math.random() * (max - min)) + min;
+    } while (!excluded.includes(num));
+
+    return num;
+  }
+
+  #findEmptyRows() {
+    return this.board
+      .map((row, index) => {
+        if (row.some((cell) => cell === 0)) {
+          return index;
+        }
+      })
+      .filter((el) => el !== undefined);
+  }
+
+  #findEmptyCells(indexRow) {
+    return this.board[indexRow]
+      .map((cell, index) => {
+        if (cell === 0) {
+          return index;
+        }
+      })
+      .filter((el) => el !== undefined);
+  }
+
+  #generateRandomNumber() {
+    const min = 0;
+    const max = 100;
+    // From 0% to 100%
+    const randomInRange = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    if (randomInRange <= 10) {
+      return 4;
+    }
+
+    return 2;
+  }
 }
 
 module.exports = Game;
