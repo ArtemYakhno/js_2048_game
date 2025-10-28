@@ -7,6 +7,7 @@ const messageWin = document.querySelector('.message-win');
 const messageLose = document.querySelector('.message-lose');
 const messageStart = document.querySelector('.message-start');
 const gameScore = document.querySelector('.game-score');
+const table = document.querySelector('.game-field tbody');
 
 button.addEventListener('click', () => {
   if (game.getStatus() === 'idle') {
@@ -19,34 +20,35 @@ button.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (game.getStatus() === 'lose') {
+  if (game.getStatus() === 'lose' || game.getStatus() === 'idle') {
     return;
   }
 
-  let isTriggered = false;
+  let isTriggered = true;
 
   switch (e.key) {
     case 'ArrowUp': {
-      isTriggered = game.moveUp();
+      game.moveUp();
       break;
     }
 
     case 'ArrowDown': {
-      isTriggered = game.moveDown();
+      game.moveDown();
       break;
     }
 
     case 'ArrowLeft': {
-      isTriggered = game.moveLeft();
+      game.moveLeft();
       break;
     }
 
     case 'ArrowRight': {
-      isTriggered = game.moveRight();
+      game.moveRight();
       break;
     }
 
     default: {
+      isTriggered = false;
       break;
     }
   }
@@ -57,6 +59,20 @@ document.addEventListener('keydown', (e) => {
 });
 
 function renderBoard() {
+  const board = game.getState();
+
+  for (let i = 0; i < game.size; i++) {
+    for (let j = 0; j < game.size; j++) {
+      const cell = table.rows[i].cells[j];
+      const cellValue = board[i][j];
+
+      cell.textContent = cellValue === 0 ? '' : cellValue;
+
+      cell.className =
+        cellValue === 0 ? 'field-cell' : `field-cell field-cell--${cellValue}`;
+    }
+  }
+
   gameScore.textContent = game.getScore();
   updateMessage();
 }
