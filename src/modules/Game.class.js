@@ -145,6 +145,7 @@ class Game {
 
   #move(direction) {
     let newBoard = structuredClone(this.board);
+    let isMoved = false;
 
     if (direction === 'up') {
       newBoard = this.#transpose(newBoard);
@@ -177,6 +178,7 @@ class Game {
       // console.log('newRow', structuredClone(newRow));
 
       if (JSON.stringify(newRow) !== JSON.stringify(newBoard[i])) {
+        isMoved = true;
         newBoard[i] = newRow;
       }
     }
@@ -190,7 +192,7 @@ class Game {
     }
     this.board = newBoard;
 
-    if (this.#findEmptyRows().length !== 0) {
+    if (this.#findEmptyRows().length !== 0 && isMoved) {
       this.#pushNumber();
     }
   }
