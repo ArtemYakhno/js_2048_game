@@ -8,6 +8,25 @@ const messageLose = document.querySelector('.message-lose');
 const messageStart = document.querySelector('.message-start');
 const gameScore = document.querySelector('.game-score');
 const table = document.querySelector('.game-field tbody');
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].clientX;
+  touchEndY = e.changedTouches[0].clientY;
+  handleSwipe();
+});
+
+document.addEventListener('keydown', (e) => {
+  handleMove(e.key);
+});
 
 button.addEventListener('click', () => {
   if (game.getStatus() === 'idle') {
@@ -19,44 +38,53 @@ button.addEventListener('click', () => {
   renderBoard();
 });
 
-document.addEventListener('keydown', (e) => {
+function handleSwipe() {
+  const dx = touchEndX - touchStartX;
+  const dy = touchEndY - touchStartY;
+
+  if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
+    return;
+  }
+
+  let direction = '';
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    direction = dx > 0 ? 'ArrowRight' : 'ArrowLeft';
+  } else {
+    direction = dy > 0 ? 'ArrowDown' : 'ArrowUp';
+  }
+  handleMove(direction);
+}
+
+function handleMove(direction) {
+  let directionHandled = true;
+
   if (game.getStatus() === 'lose' || game.getStatus() === 'idle') {
     return;
   }
 
-  let isTriggered = true;
-
-  switch (e.key) {
-    case 'ArrowUp': {
+  switch (direction) {
+    case 'ArrowUp':
       game.moveUp();
       break;
-    }
-
-    case 'ArrowDown': {
+    case 'ArrowDown':
       game.moveDown();
       break;
-    }
-
-    case 'ArrowLeft': {
+    case 'ArrowLeft':
       game.moveLeft();
       break;
-    }
-
-    case 'ArrowRight': {
+    case 'ArrowRight':
       game.moveRight();
       break;
-    }
-
-    default: {
-      isTriggered = false;
+    default:
+      directionHandled = false;
       break;
-    }
   }
 
-  if (isTriggered) {
+  if (directionHandled) {
     renderBoard();
   }
-});
+}
 
 function renderBoard() {
   const board = game.getState();
@@ -69,7 +97,9 @@ function renderBoard() {
       cell.textContent = cellValue === 0 ? '' : cellValue;
 
       cell.className =
-        cellValue === 0 ? 'field-cell' : `field-cell field-cell--${cellValue}`;
+        cellValue === 0
+          ? 'field-cell'
+          : `field-cell field-cell--${cellValue} field-cell--transition-effect`;
     }
   }
 
